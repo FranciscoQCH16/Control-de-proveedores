@@ -11,9 +11,6 @@ def generar_excel_devolucion(fecha, proveedor, df, nombre_reporte="Registro_Devo
     )
 
     # Título
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=5)
-    ws.cell(row=1, column=1, value="ANEXO B: Formato de Registro de Devolución a Proveedores").font = bold
-    ws.cell(row=1, column=1).alignment = center
 
     ws.cell(row=2, column=1, value="PROGRAMA DE CONTROL DE PROVEEDORES").font = bold
     ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=5)
@@ -32,7 +29,7 @@ def generar_excel_devolucion(fecha, proveedor, df, nombre_reporte="Registro_Devo
 
     # Encabezados
     headers = [
-        "Producto(s) Devuelto(s)", "Cantidad", "Lote", "Causal del Rechazo (Marcar con X)"
+        "Producto(s) Devuelto(s)", "Cantidad", "Lote", "Causal del Rechazo (Marcar con X)", "Observaciones"
     ]
     for idx, h in enumerate(headers, 1):
         ws.cell(row=6, column=idx, value=h).font = bold

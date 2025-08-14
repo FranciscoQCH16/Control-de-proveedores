@@ -51,15 +51,14 @@ with pestañas[0]:
         proveedor = st.text_input("Proveedor", key="p1_proveedor")
     with col3:
         factura = st.text_input("Factura N°", key="p1_factura")
-    with col4:
-        otro = st.text_input(" ", key="p1_otro")
+    
 
     st.markdown("### Detalle de Productos")
     columnas = [
         "Producto", "Lote", "Fecha Vencimiento", "Temp. (°C)",
         "Características Organolépticas (Color, Olor, Textura)", "Empaque", "Observaciones"
     ]
-    filas = st.number_input("Cantidad de productos", min_value=1, max_value=20, value=5, key="p1_filas")
+    filas = st.number_input("Cantidad de productos", min_value=1, max_value=250, value=5, key="p1_filas")
     data = []
     cols_titulos = st.columns(len(columnas))
     for j, col in enumerate(columnas):
@@ -130,14 +129,13 @@ with pestañas[1]:
         fecha_dev = st.date_input("Fecha de Devolución", key="p2_fecha_dev")
     with col2:
         proveedor_dev = st.text_input("Proveedor", key="p2_proveedor")
-    with col3:
-        otro_dev = st.text_input(" ", key="p2_otro")
+    
 
     st.markdown("### Detalle de Productos Devueltos")
     columnas_dev = [
-        "Producto(s) Devuelto(s)", "Cantidad", "Lote", "Causal del Rechazo (Marcar con X)"
+        "Producto(s) Devuelto(s)", "Cantidad", "Lote", "Causal del Rechazo (Marcar con X)", "Observaciones"
     ]
-    filas_dev = st.number_input("Cantidad de productos devueltos", min_value=1, max_value=20, value=3, key="p2_filas")
+    filas_dev = st.number_input("Cantidad de productos devueltos", min_value=1, max_value=250, value=3, key="p2_filas")
     data_dev = []
     cols_titulos_dev = st.columns(len(columnas_dev))
     for j, col in enumerate(columnas_dev):
@@ -153,13 +151,23 @@ with pestañas[1]:
     for i in range(filas_dev):
         cols = st.columns(len(columnas_dev))
         fila = []
+        causal_seleccionada = []
         for j, col in enumerate(columnas_dev):
             if col == "Causal del Rechazo (Marcar con X)":
                 val = cols[j].multiselect(
-                    "", opciones_causal, key=f"p2_dev_{i}_{j}_multi"
+                    "", opciones_causal, key=f"p2_dev_{i}_{j}_multi", placeholder="Selecciona una o varias opciones"
                 )
+                causal_seleccionada = val
                 val_excel = ", ".join(val)
                 fila.append(val_excel)
+            elif col == "Observaciones":
+                if causal_seleccionada:
+                    val = cols[j].text_input(
+                        "Observaciones", key=f"p2_dev_{i}_{j}_obs", placeholder="Describe la observación"
+                    )
+                else:
+                    val = ""
+                fila.append(val)
             else:
                 val = cols[j].text_input(
                     col, key=f"p2_dev_{i}_{j}", label_visibility="collapsed", placeholder=col
