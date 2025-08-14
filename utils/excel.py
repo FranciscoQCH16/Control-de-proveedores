@@ -18,36 +18,91 @@ def generar_excel(nombre_establecimiento, fecha, df, responsable, supervisor, re
     )
     center = Alignment(horizontal="center", vertical="center")
 
-    if nombre_reporte == "Verificacion_BPM":
-        ws.append(["Nombre del establecimiento", nombre_establecimiento])
-    ws.append(["Fecha", str(fecha)])
-    ws.append([])
+    # Título
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=7)
+    ws.cell(row=1, column=1, value="FORMATO DE INSPECCIÓN Y CONTROL DE RECEPCIÓN DE MATERIAS PRIMAS").font = bold
+    ws.cell(row=1, column=1).alignment = center
 
-    # Encabezados de la tabla
-    ws.append(list(df.columns))
-    header_row = ws.max_row
-    for col in range(1, len(df.columns) + 1):
-        cell = ws.cell(row=header_row, column=col)
-        cell.font = bold
-        cell.fill = header_fill
-        cell.alignment = center
-        cell.border = border
+    # Fila de datos generales
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=2)
+    ws.cell(row=2, column=1, value="Fecha:")
+    ws.cell(row=2, column=3, value=str(fecha))
+    ws.merge_cells(start_row=2, start_column=4, end_row=2, end_column=5)
+    ws.cell(row=2, column=4, value="Proveedor:")
+    ws.cell(row=2, column=6, value=nombre_establecimiento)
+    ws.merge_cells(start_row=2, start_column=7, end_row=2, end_column=7)
+    ws.cell(row=2, column=7, value=f"Factura N°: {supervisor if supervisor else ''}")
 
-    # Filas de datos
-    for row_idx, row in enumerate(df.values.tolist(), start=header_row + 1):
-        for col_idx, value in enumerate(row, start=1):
-            cell = ws.cell(row=row_idx, column=col_idx, value=value)
-            # Centrar selectores (C/NC) y observaciones a la izquierda
-            if 3 <= col_idx <= 7:
-                cell.alignment = center
-            else:
-                cell.alignment = Alignment(horizontal="left", vertical="center")
+
+    # Encabezados de la tabla (dos filas)
+    ws.merge_cells(start_row=4, start_column=1, end_row=5, end_column=1)
+    ws.cell(row=4, column=1, value="Producto").font = bold
+    ws.cell(row=4, column=1).alignment = center
+    ws.cell(row=4, column=1).border = border
+
+    ws.merge_cells(start_row=4, start_column=2, end_row=5, end_column=2)
+    ws.cell(row=4, column=2, value="Lote").font = bold
+    ws.cell(row=4, column=2).alignment = center
+    ws.cell(row=4, column=2).border = border
+
+    ws.merge_cells(start_row=4, start_column=3, end_row=5, end_column=3)
+    ws.cell(row=4, column=3, value="Fecha Vencimiento").font = bold
+    ws.cell(row=4, column=3).alignment = center
+    ws.cell(row=4, column=3).border = border
+
+    ws.merge_cells(start_row=4, start_column=4, end_row=5, end_column=4)
+    ws.cell(row=4, column=4, value="Temp. (°C)").font = bold
+    ws.cell(row=4, column=4).alignment = center
+    ws.cell(row=4, column=4).border = border
+
+    ws.merge_cells(start_row=4, start_column=5, end_row=5, end_column=5)
+    ws.cell(row=4, column=5, value="Características Organolépticas (Color, Olor, Textura)").font = bold
+    ws.cell(row=4, column=5).alignment = center
+    ws.cell(row=4, column=5).border = border
+
+    ws.merge_cells(start_row=4, start_column=6, end_row=5, end_column=6)
+    ws.cell(row=4, column=6, value="Empaque").font = bold
+    ws.cell(row=4, column=6).alignment = center
+    ws.cell(row=4, column=6).border = border
+
+    ws.merge_cells(start_row=4, start_column=7, end_row=5, end_column=7)
+    ws.cell(row=4, column=7, value="Observaciones").font = bold
+    ws.cell(row=4, column=7).alignment = center
+    ws.cell(row=4, column=7).border = border
+
+    # Llenar datos de la tabla
+    start_row = 6
+    for i, row in enumerate(df.values.tolist()):
+        for j, value in enumerate(row):
+            cell = ws.cell(row=start_row + i, column=1 + j, value=value)
+            cell.alignment = center
             cell.border = border
 
+    # Bordes para filas vacías si hay menos de 15 productos (opcional, puedes quitarlo si quieres solo filas dinámicas)
+    # for i in range(len(df), 15):
+    #     for j in range(6):
+    #         cell = ws.cell(row=start_row + i, column=1 + j)
+    #         cell.border = border
+
+    # Condiciones del vehículo
+    row_cond = start_row + max(len(df), 10) + 2
+    ws.merge_cells(start_row=row_cond, start_column=1, end_row=row_cond, end_column=7)
+    ws.cell(row=row_cond, column=1, value=f"Condiciones del Vehículo de Transporte: Limpio: {responsable} | Temperatura del furgón (si aplica): {revision} °C").font = bold
+
+    # Recibido por y firma
+    row_firma = row_cond + 2
+    ws.cell(row=row_firma, column=1, value="Recibido por:")
+    ws.merge_cells(start_row=row_firma, start_column=2, end_row=row_firma, end_column=4)
+    ws.cell(row=row_firma, column=2, value="________________________")
+    ws.cell(row=row_firma, column=5, value="Firma:")
+    ws.merge_cells(start_row=row_firma, start_column=6, end_row=row_firma, end_column=7)
+    ws.cell(row=row_firma, column=6, value="______________")
+
     # Ajustar ancho de columnas automáticamente
-    for col in ws.columns:
+    from openpyxl.utils import get_column_letter
+    for idx, col in enumerate(ws.columns, 1):
         max_length = 0
-        col_letter = col[0].column_letter
+        col_letter = get_column_letter(idx)
         for cell in col:
             try:
                 if cell.value:
@@ -56,13 +111,7 @@ def generar_excel(nombre_establecimiento, fecha, df, responsable, supervisor, re
                 pass
         ws.column_dimensions[col_letter].width = max(12, max_length + 2)
 
-    ws.append([])
-    ws.append(["Responsable", responsable])
-    if nombre_reporte == "Verificacion_BPM":
-        ws.append(["Supervisor", supervisor])
-        ws.append(["Revisión", revision])
-
-    # Formato de nombre: nombre_reporte_YYYY-MM-DD.xlsx
+    # Guardar archivo temporal
     fecha_str = str(fecha)
     nombre_archivo = f"{nombre_reporte}_{fecha_str}.xlsx"
     tmp = NamedTemporaryFile(delete=False, suffix=".xlsx", prefix=nombre_archivo.replace(" ", "_"))

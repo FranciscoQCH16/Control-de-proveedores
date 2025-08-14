@@ -48,13 +48,12 @@ with pestañas[0]:
         proveedor = st.text_input("Proveedor")
     with col3:
         factura = st.text_input("Factura N°")
-    with col4:
-        otro = st.text_input(" ")
+
 
     st.markdown("### Detalle de Productos")
     columnas = [
         "Producto", "Lote", "Fecha Vencimiento", "Temp. (°C)",
-        "Características Organolépticas (Color, Olor, Textura)", "Empaque"
+        "Características Organolépticas (Color, Olor, Textura)", "Empaque", "Observaciones"
     ]
     filas = st.number_input("Cantidad de productos", min_value=1, max_value=20, value=5)
     data = []
@@ -64,12 +63,37 @@ with pestañas[0]:
     for i in range(filas):
         cols = st.columns(len(columnas))
         fila = []
+        valor_carac = ""
         for j, col in enumerate(columnas):
-            val = cols[j].text_input(
-                col, key=f"prod_{i}_{j}", label_visibility="collapsed", placeholder=col
-            )
-            fila.append(val)
+            if col == "Características Organolépticas (Color, Olor, Textura)":
+                opciones = ["Características organolépticas", "Cumple", "No cumple"]
+                val = cols[j].selectbox(
+                    "", opciones, key=f"prod_{i}_{j}_select"
+                )
+                if val == "Características organolépticas":
+                    val = ""
+                valor_carac = val
+                fila.append(val)
+            elif col == "Fecha Vencimiento":
+                val = cols[j].date_input(
+                    "", key=f"prod_{i}_{j}_date"
+                )
+                fila.append(val)
+            elif col == "Observaciones":
+                if valor_carac == "No cumple":
+                    val = cols[j].text_input(
+                        "Observaciones", key=f"prod_{i}_{j}_obs", placeholder="Describa la observación"
+                    )
+                else:
+                    val = ""
+                fila.append(val)
+            else:
+                val = cols[j].text_input(
+                    col, key=f"prod_{i}_{j}", label_visibility="collapsed", placeholder=col
+                )
+                fila.append(val)
         data.append(fila)
+        st.markdown("<hr style='margin: 0.2em 0; border: 1px solid #e6e6e6;'>", unsafe_allow_html=True)
     df = pd.DataFrame(data, columns=columnas)
 
     st.markdown("### Condiciones del Vehículo de Transporte")
@@ -87,8 +111,8 @@ with pestañas[0]:
             fecha,
             df,
             limpio,
+            factura,
             temp_furgon,
-            observaciones,
             nombre_reporte="Inspeccion_Recepcion_Materias_Primas"
         )
         url = subir_a_dropbox(archivo)
