@@ -33,7 +33,7 @@ if not st.session_state["autenticado"]:
 
 st.set_page_config(page_title="Control de Proveedores", layout="wide")
 
-st.title("Sistema de Reportes L & D")
+st.title("Reporte de proveedores")
 
 # Pestaña única: Inspección y control de recepción de materias primas
 tabs_labels = [
