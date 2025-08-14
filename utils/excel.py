@@ -1,3 +1,86 @@
+def generar_excel_devolucion(fecha, proveedor, df, nombre_reporte="Registro_Devolucion_Proveedores"):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = nombre_reporte.replace("_", " ")
+
+    bold = Font(bold=True)
+    center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    border = Border(
+        left=Side(style='thin'), right=Side(style='thin'),
+        top=Side(style='thin'), bottom=Side(style='thin')
+    )
+
+    # Título
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=5)
+    ws.cell(row=1, column=1, value="ANEXO B: Formato de Registro de Devolución a Proveedores").font = bold
+    ws.cell(row=1, column=1).alignment = center
+
+    ws.cell(row=2, column=1, value="PROGRAMA DE CONTROL DE PROVEEDORES").font = bold
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=5)
+    ws.cell(row=2, column=1).alignment = center
+
+    ws.cell(row=3, column=1, value="FORMATO DE REGISTRO DE DEVOLUCIÓN A PROVEEDORES").font = bold
+    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=5)
+    ws.cell(row=3, column=1).alignment = center
+
+    # Datos generales
+    ws.cell(row=4, column=1, value="Fecha de Devolución:")
+    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=2)
+    ws.cell(row=4, column=3, value=str(fecha))
+    ws.cell(row=4, column=4, value="Proveedor:")
+    ws.cell(row=4, column=5, value=proveedor)
+
+    # Encabezados
+    headers = [
+        "Producto(s) Devuelto(s)", "Cantidad", "Lote", "Causal del Rechazo (Marcar con X)"
+    ]
+    for idx, h in enumerate(headers, 1):
+        ws.cell(row=6, column=idx, value=h).font = bold
+        ws.cell(row=6, column=idx).alignment = center
+        ws.cell(row=6, column=idx).border = border
+
+    # Llenar datos de la tabla
+    for i, row in enumerate(df.values.tolist()):
+        for j, value in enumerate(row):
+            cell = ws.cell(row=7 + i, column=1 + j, value=value)
+            cell.alignment = center
+            cell.border = border
+
+    # Espacio para firmas
+    row_firma = 8 + len(df)
+    ws.cell(row=row_firma, column=1, value="Responsable de la Devolución:")
+    ws.merge_cells(start_row=row_firma, start_column=2, end_row=row_firma, end_column=3)
+    ws.cell(row=row_firma, column=2, value="________________________")
+    ws.cell(row=row_firma, column=4, value="Firma:")
+    ws.merge_cells(start_row=row_firma, start_column=5, end_row=row_firma, end_column=5)
+    ws.cell(row=row_firma, column=5, value="______________")
+
+    ws.cell(row=row_firma+1, column=1, value="Nombre del Conductor/Representante del Proveedor:")
+    ws.merge_cells(start_row=row_firma+1, start_column=2, end_row=row_firma+1, end_column=3)
+    ws.cell(row=row_firma+1, column=2, value="________________________")
+    ws.cell(row=row_firma+1, column=4, value="Firma:")
+    ws.merge_cells(start_row=row_firma+1, start_column=5, end_row=row_firma+1, end_column=5)
+    ws.cell(row=row_firma+1, column=5, value="______________")
+
+    # Ajustar ancho de columnas automáticamente
+    from openpyxl.utils import get_column_letter
+    for idx, col in enumerate(ws.columns, 1):
+        max_length = 0
+        col_letter = get_column_letter(idx)
+        for cell in col:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+        ws.column_dimensions[col_letter].width = max(12, max_length + 2)
+
+    # Guardar archivo temporal
+    fecha_str = str(fecha)
+    nombre_archivo = f"{nombre_reporte}_{fecha_str}.xlsx"
+    tmp = NamedTemporaryFile(delete=False, suffix=".xlsx", prefix=nombre_archivo.replace(" ", "_"))
+    wb.save(tmp.name)
+    return tmp.name
 
 import pandas as pd
 from openpyxl import Workbook

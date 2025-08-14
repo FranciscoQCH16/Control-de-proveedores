@@ -173,13 +173,11 @@ with pestañas[1]:
 
     if st.button("Generar y subir registro de devolución a Dropbox", key="p2_btn_reporte"):
         df_dev = pd.DataFrame(data_dev, columns=columnas_dev)
-        archivo_dev = generar_excel(
-            proveedor_dev,
+        from utils.excel import generar_excel_devolucion
+        archivo_dev = generar_excel_devolucion(
             fecha_dev,
+            proveedor_dev,
             df_dev,
-            "",  # responsable (puedes agregar input si lo deseas)
-            "",  # supervisor (no aplica aquí)
-            "",  # revision (no aplica aquí)
             nombre_reporte="Registro_Devolucion_Proveedores"
         )
         url_dev = subir_a_dropbox(archivo_dev)
