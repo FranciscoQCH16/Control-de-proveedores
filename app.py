@@ -182,6 +182,3 @@ with pestañas[1]:
         )
         url_dev = subir_a_dropbox(archivo_dev)
         st.success(f"Registro generado y subido. Acceso: {url_dev}")
-    #
-        url = subir_a_dropbox(archivo)
-        st.success(f"Reporte generado y subido. Acceso: {url}")
