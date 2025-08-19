@@ -44,6 +44,7 @@ pestañas = st.tabs(tabs_labels)
 
 # --- Pestaña 1: Inspección y Control de Recepción de Materias Primas ---
 with pestañas[0]:
+    st.header("Inspección y Control de Recepción de Materias Primas")
     col1, col2, col3, col4 = st.columns([1, 2, 2, 1])
     with col1:
         fecha = st.date_input("Fecha", value=date.today(), key="p1_fecha")
@@ -77,13 +78,28 @@ with pestañas[0]:
                     val = ""
                 valor_carac = val
                 fila.append(val)
+            elif col == "Empaque":
+                opciones_empaque = ["Empaque", "Cumple", "No cumple"]
+                val_empaque = cols[j].selectbox(
+                    "", opciones_empaque, key=f"p1_prod_{i}_{j}_empaque_select"
+                )
+                if val_empaque == "Empaque":
+                    val_empaque = ""
+                fila.append(val_empaque)
             elif col == "Fecha Vencimiento":
                 val = cols[j].date_input(
                     "", key=f"p1_prod_{i}_{j}_date"
                 )
                 fila.append(val)
             elif col == "Observaciones":
+                mostrar_obs = False
                 if valor_carac == "No cumple":
+                    mostrar_obs = True
+                # Buscar el índice de la columna Empaque
+                idx_empaque = columnas.index("Empaque")
+                if len(fila) > idx_empaque and fila[idx_empaque] == "No cumple":
+                    mostrar_obs = True
+                if mostrar_obs:
                     val = cols[j].text_input(
                         "Observaciones", key=f"p1_prod_{i}_{j}_obs", placeholder="Describa la observación"
                     )
