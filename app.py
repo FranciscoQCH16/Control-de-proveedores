@@ -87,9 +87,20 @@ with pestañas[0]:
                     val_empaque = ""
                 fila.append(val_empaque)
             elif col == "Fecha Vencimiento":
-                val = cols[j].date_input(
-                    "", key=f"p1_prod_{i}_{j}_date"
+                # Permitir productos sin fecha de vencimiento
+                sin_fecha = cols[j].checkbox(
+                    "Sin fecha de vencimiento", key=f"p1_prod_{i}_{j}_sin_fecha"
                 )
+                if sin_fecha:
+                    # Mantener el alineado visual pero deshabilitar el control
+                    cols[j].date_input(
+                        "", key=f"p1_prod_{i}_{j}_date", disabled=True
+                    )
+                    val = "Sin fecha de vencimiento"  # Mostrar texto en Excel
+                else:
+                    val = cols[j].date_input(
+                        "", key=f"p1_prod_{i}_{j}_date"
+                    )
                 fila.append(val)
             elif col == "Observaciones":
                 mostrar_obs = False
